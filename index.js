@@ -3,6 +3,16 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser')
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+let URL;
+// mongoose setup
+mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@foreveryoung.v54iuua.mongodb.net/?retryWrites=true&w=majority`,{useNewUrlParser:true,useUnifiedTopology:true})
+let urlSchema = new Schema({
+  original_url:{type:String,required:true},
+  short_url:Number
+})
+URL = mongoose.model("URL",urlSchema)
 // Basic Configuration
 const port = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({extended:true}))
@@ -25,6 +35,8 @@ app.post('/api/shorturl', function(req, res) {
   let url = req.body.url
   console.log(url)
   if(testValidURL(url)){
+    // post original_url to database
+    
     return res.json({original_url:url})
   }
   else{
