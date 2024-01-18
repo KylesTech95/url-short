@@ -17,10 +17,13 @@ let urlSchema = new Schema({
   original_url:{type:String,required:true},
   short_url:Number
 })
+// setup counter for short_urls
 let counter = 0;
 // create&save url
 const createAndSaveUrl = (url,done) => {
+  // increment counter by 1
   counter = counter + 1;
+  // what happens to my url argument?
   let newUrl = new URL({
     original_url:url,
     short_url: counter
@@ -48,10 +51,12 @@ const testValidURL = (url) => {
 app.get('/api/shorturl', async (req,res)=>{
   try{
     const url = await URL.find()
+    // view database of urls in the terminal
     console.log(url)
 
   }
   catch(err){
+    // error with status code
     res.status(500).json({message:err.message})
   }
 })
