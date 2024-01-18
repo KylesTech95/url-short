@@ -17,23 +17,26 @@ let urlSchema = new Schema({
   original_url:{type:String,required:true},
   short_url:Number
 })
-const randomNum = () => {
-  return Math.floor(Math.random()*100);
+
+// findone
+const findOneURL = async (model,param,res)=>{
+  let urlFound = await model.findOne({short_url:param})
+  res.json({original_url:urlFound.original_url,short_url:urlFound.short_url})
 }
 // create&save url
-const createAndSaveUrl = (url) => {
+const createAndSaveUrl = (url,number) => {
 
   // what happens to my url argument?
   let newUrl = new URL({
     original_url:url,
-    short_url: randomNum()
+    short_url: number
   })
   newUrl.save(newUrl)
 }
 // delete many documents
 const dropAllDocuments = async (model) => {
   try{
-    const deleteAll = await model.deleteMany({short_url:{"$lt": 5}})
+    const deleteAll = await model.deleteMany({short_url:{"$lt": 101}})
     console.log(deleteAll)
   }
   catch(err){
@@ -41,8 +44,8 @@ const dropAllDocuments = async (model) => {
   }
 }
 // check for documents
-const check4Documents = async (URL,done) => {
-  const url = await URL.find()
+const check4Documents = async (model) => {
+  const url = await model.find()
   console.log(url)
 }
 
@@ -79,18 +82,32 @@ app.get('/api/shorturl', async (req,res)=>{
     res.status(500).json({message:err.message})
   }
 })
+// Random number for short_url
+const randomNum = () => {
+  return Math.floor(Math.random()*100);
+}
 // post valid url
-app.post('/api/shorturl', async function(req, res) {
+app.post('/api/shorturl', function(req, res) {
+  let num = randomNum() 
   let url = req.body.url
   if(testValidURL(url)){
-    createAndSaveUrl(url)
-    return res.json({original_url:url})
+    createAndSaveUrl(url,num)
+    return res.json({original_url:url,short_url:num})
   }
   else{
     return res.json({ error: 'invalid url' });
   }
 });
-
+// post valid url from short_url
+app.get('/api/shorturl/:id', async (req,res)=>{
+try{
+let id = req.params.id;
+findOneURL(URL,id,res)
+}
+catch(err){
+res.status(500).json({message:err.message})
+}
+})
 app.listen(port, function() {
   console.log(`chilling on port: ${port}`);
 });
