@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('https');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -16,13 +17,13 @@ let urlSchema = new Schema({
   original_url:{type:String,required:true},
   short_url:Number
 })
-let c = 0;
+let counter = 0;
 // create&save url
 const createAndSaveUrl = (url,done) => {
-  c++
+  counter = counter + 1;
   let newUrl = new URL({
     original_url:url,
-    short_url: c
+    short_url: counter
   })
   newUrl.save(newUrl)
 }
@@ -33,6 +34,7 @@ app.use(bodyParser.urlencoded({extended:true}))
 app.use(bodyParser.json())
 app.use(cors());
 app.use('/public', express.static(`${process.cwd()}/public`));
+app.use(express.json())
 app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
@@ -42,10 +44,22 @@ const testValidURL = (url) => {
   const regex = new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/)
   return regex.test(url)
 }
+// test URL model
+app.get('/api/shorturl', async (req,res)=>{
+  try{
+    const url = await URL.find()
+    console.log(url)
+
+  }
+  catch(err){
+    res.status(500).json({message:err.message})
+  }
+})
 // post valid url
-app.post('/api/shorturl', function(req, res) {
+app.post('/api/shorturl', async function(req, res) {
   let url = req.body.url
   if(testValidURL(url)){
+    createAndSaveUrl(url)
     return res.json({original_url:url})
   }
   else{
