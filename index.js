@@ -17,20 +17,34 @@ let urlSchema = new Schema({
   original_url:{type:String,required:true},
   short_url:Number
 })
-// setup counter for short_urls
-let counter = 0;
+const randomNum = () => {
+  return Math.floor(Math.random()*100);
+}
 // create&save url
 const createAndSaveUrl = (url) => {
-  // increment counter by 1
-  counter = counter + 1;
+
   // what happens to my url argument?
   let newUrl = new URL({
     original_url:url,
-    short_url: counter
+    short_url: randomNum()
   })
   newUrl.save(newUrl)
 }
-
+// delete many documents
+const dropAllDocuments = async (model) => {
+  try{
+    const deleteAll = await model.deleteMany({short_url:{"$lt": 5}})
+    console.log(deleteAll)
+  }
+  catch(err){
+    console.log(err)
+  }
+}
+// check for documents
+const check4Documents = async (URL,done) => {
+  const url = await URL.find()
+  console.log(url)
+}
 
 URL = mongoose.model("URL",urlSchema)
 // Basic Configuration
@@ -52,12 +66,13 @@ const testValidURL = (url) => {
 // test URL model
 app.get('/api/shorturl', async (req,res)=>{
   try{
-    const url = await URL.find()
+    // res.send(dropAllDocuments(URL))
+    //check if anything is stored in the db
+    check4Documents(URL)
     // view database of urls in the terminal
-    console.log(url)
     // test find document
-    let whale = await URL.find({original_url:"http://whaleSperm.com"})
-    res.send(whale[0].original_url)
+    // let whale = await URL.find({original_url:"http://whaleSperm.com"})
+    // res.send(whale[0].original_url)
   }
   catch(err){
     // error with status code
