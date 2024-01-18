@@ -69,9 +69,9 @@ const testValidURL = (url) => {
 // test URL model
 app.get('/api/shorturl', async (req,res)=>{
   try{
-    // res.send(dropAllDocuments(URL))
+    dropAllDocuments(URL)
     //check if anything is stored in the db
-    check4Documents(URL)
+    // check4Documents(URL)
     // view database of urls in the terminal
     // test find document
     // let whale = await URL.find({original_url:"http://whaleSperm.com"})
