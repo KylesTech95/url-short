@@ -55,7 +55,9 @@ app.get('/api/shorturl', async (req,res)=>{
     const url = await URL.find()
     // view database of urls in the terminal
     console.log(url)
-
+    // test find document
+    let whale = await URL.find({original_url:"http://whaleSperm.com"})
+    res.send(whale[0].original_url)
   }
   catch(err){
     // error with status code
